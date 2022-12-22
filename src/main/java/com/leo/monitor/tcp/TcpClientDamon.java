@@ -21,9 +21,7 @@ public class TcpClientDamon {
     }
 
     public Mono<? extends Connection> connect() {
-        return tcpClient.doOnConnected(conn -> {
-            System.out.println(conn);
-        }).handle((in, out) -> out.neverComplete()).connect();
+        return tcpClient.doOnConnected(System.out::println).handle((in, out) -> out.neverComplete()).connect();
     }
 
     public Mono<? extends Connection> getConnection() {
