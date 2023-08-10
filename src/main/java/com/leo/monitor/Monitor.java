@@ -6,10 +6,12 @@ import com.leo.monitor.handler.LogHandler;
 import com.leo.monitor.http.HttpClientDamon;
 import com.leo.monitor.http.HttpServerDamon;
 import com.leo.monitor.tcp.TcpServerDamon;
+import lombok.extern.java.Log;
 import org.apache.commons.cli.*;
 
 import java.nio.charset.Charset;
 import java.util.Objects;
+import java.util.logging.Level;
 
 /**
  * monitor
@@ -17,21 +19,21 @@ import java.util.Objects;
  * @author zhangxinlei
  * @date 2022-11-04
  */
+@Log
 public class Monitor {
     public static void main(String[] args) {
+        Monitor monitor = new Monitor();
+        monitor.start(args);
+    }
+
+    public void start(String[] args) {
         String proxyHost;
         int proxyPort;
         String localHost = "127.0.0.1";
         int localPort = 9999;
         try {
             var parser = new DefaultParser();
-            var options = new Options();
-            options.addOption("m", Constants.MODE, true, "proxy mode tcp or http");
-            options.addOption("h", Constants.PROXY_HOST, true, "set proxy host");
-            options.addOption("p", Constants.PROXY_PORT, true, "set proxy port");
-            options.addOption("lh", Constants.LISTENER_HOST, false, "set local port,default 127.0.0.1");
-            options.addOption("lp", Constants.LISTENER_PORT, false, "set local port,default 9999");
-            options.addOption("c", Constants.CODE, false, "log decode charset,default utf-8");
+            var options = getOptions();
             CommandLine cmd = parser.parse(options, args);
             if (!cmd.hasOption(Constants.MODE)) {
                 HelpFormatter hf = new HelpFormatter();
@@ -72,8 +74,18 @@ public class Monitor {
                 hf.printHelp("options", options);
             }
         } catch (ParseException e) {
-            System.out.println("解析命令行错误");
-            e.printStackTrace();
+            log.log(Level.FINE, "参数解析错误", e);
         }
+    }
+
+    private Options getOptions() {
+        var options = new Options();
+        options.addOption("m", Constants.MODE, true, "proxy mode tcp or http");
+        options.addOption("h", Constants.PROXY_HOST, true, "set proxy host");
+        options.addOption("p", Constants.PROXY_PORT, true, "set proxy port");
+        options.addOption("lh", Constants.LISTENER_HOST, false, "set local port,default 127.0.0.1");
+        options.addOption("lp", Constants.LISTENER_PORT, false, "set local port,default 9999");
+        options.addOption("c", Constants.CODE, false, "log decode charset,default utf-8");
+        return options;
     }
 }
