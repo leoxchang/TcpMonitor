@@ -74,7 +74,7 @@ public class Monitor {
                 hf.printHelp("options", options);
             }
         } catch (ParseException e) {
-            log.log(Level.FINE, "参数解析错误", e);
+            log.log(Level.INFO, "参数解析错误", e);
         }
     }
 

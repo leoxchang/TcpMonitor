@@ -3,6 +3,7 @@ package com.leo.monitor.handler;
 import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.fastjson2.JSONWriter;
 import io.netty.buffer.ByteBuf;
+import lombok.extern.java.Log;
 import reactor.netty.http.client.HttpClientResponse;
 import reactor.netty.http.server.HttpServerRequest;
 
@@ -13,6 +14,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
+import java.util.logging.Level;
 
 
 /**
@@ -21,6 +23,7 @@ import java.util.Objects;
  * @author zhangxinlei
  * @date 2022-11-07
  */
+@Log
 public class LogHandler {
 
     public static Charset charset = StandardCharsets.UTF_8;
@@ -45,7 +48,8 @@ public class LogHandler {
         }
         jsonBuilder.append(",\"uri\":").append("\"").append(request.uri()).append("\"");
         jsonBuilder.append(",\"url\":").append("\"").append(request.path()).append("\"").append("}");
-        System.out.println(builder.append(JSONObject.parseObject(jsonBuilder.toString()).toJSONString(JSONWriter.Feature.PrettyFormat)));
+        log.log(Level.INFO,
+                builder.append(JSONObject.parseObject(jsonBuilder.toString()).toJSONString(JSONWriter.Feature.PrettyFormat)).toString());
     }
 
     public static void logRequest(ByteBuf byteBuf) {
@@ -58,7 +62,7 @@ public class LogHandler {
             jsonBuilder.append(byteBuf.toString(charset));
         }
         jsonBuilder.append("\"}");
-        System.out.println(builder.append(jsonBuilder));
+        log.log(Level.INFO, builder.append(jsonBuilder).toString());
     }
 
     public static void logResponse(HttpClientResponse response, ByteBuf byteBuf) {
@@ -74,7 +78,8 @@ public class LogHandler {
         }
         jsonBuilder.append("},\"body\":");
         jsonBuilder.append(byteBuf.toString(Charset.defaultCharset())).append("}");
-        System.out.println(builder.append(JSONObject.parseObject(jsonBuilder.toString()).toJSONString(JSONWriter.Feature.PrettyFormat)));
+        log.log(Level.INFO,
+                builder.append(JSONObject.parseObject(jsonBuilder.toString()).toJSONString(JSONWriter.Feature.PrettyFormat)).toString());
     }
 
     public static void logResponse(ByteBuf byteBuf) {
@@ -83,7 +88,7 @@ public class LogHandler {
         builder.append(" response------> ");
         String jsonBuilder = "{" + "\"body\":\"" +
                 byteBuf.toString(charset) + "\"}";
-        System.out.println(builder.append(jsonBuilder));
+        log.log(Level.INFO, builder.append(jsonBuilder).toString());
     }
 
     private static String getFormatDate() {

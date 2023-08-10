@@ -6,11 +6,13 @@ import com.leo.monitor.handler.LogHandler;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.handler.codec.http.HttpHeaderNames;
+import lombok.extern.java.Log;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
 import reactor.netty.http.server.HttpServer;
 
 import java.util.Objects;
+import java.util.logging.Level;
 
 /**
  * http server
@@ -18,6 +20,7 @@ import java.util.Objects;
  * @author zhangxinlei
  * @date 2022-11-04
  */
+@Log
 public class HttpServerDamon implements Damon {
 
     private final HttpClientDamon httpClientDamon;
@@ -52,7 +55,7 @@ public class HttpServerDamon implements Damon {
                     }
                     return response.sendString(Mono.just("error"));
                 });
-        System.out.println("启动完成");
+        log.log(Level.INFO, "启动完成,监听端口:" + port);
         server.bindNow()
                 .onDispose()
                 .block();
