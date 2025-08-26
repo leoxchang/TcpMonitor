@@ -2,9 +2,10 @@ package com.leo.monitor.tcp;
 
 import com.leo.monitor.Damon;
 import com.leo.monitor.handler.LogHandler;
-import io.netty.buffer.ByteBuf;
+import lombok.extern.java.Log;
+import reactor.core.publisher.Mono;
+import reactor.netty.tcp.TcpClient;
 import reactor.netty.tcp.TcpServer;
-
 
 /**
  * tcp server
@@ -12,9 +13,8 @@ import reactor.netty.tcp.TcpServer;
  * @author zhangxinlei
  * @date 2022-11-04
  */
+@Log
 public class TcpServerDamon implements Damon {
-
-    private TcpClientDamon tcpClientDamon;
 
     private final String proxyHost;
 
@@ -28,20 +28,27 @@ public class TcpServerDamon implements Damon {
     @Override
     public void start(String ip, int port) {
         TcpServer server =
-                TcpServer.create().host(ip).port(port).doOnConnection(connection -> {
-                    tcpClientDamon = new TcpClientDamon(proxyHost, proxyPort);
-                    System.out.println(connection);
-                }).handle((inbound, outbound) -> outbound.send(tcpClientDamon.getConnection().repeat(0L).flatMap(connection -> {
-                    connection.outbound().send(inbound.receive().retain().map(byteBuf -> {
-                        LogHandler.logRequest(byteBuf);
-                        return byteBuf;
-                    })).neverComplete().subscribe();
-                    return connection.inbound().receive().retain().map(byteBuf -> {
-                        LogHandler.logResponse(byteBuf);
-                        return byteBuf;
-                    });
-                }).map(ByteBuf::asByteBuf).doOnError(throwable -> System.out.println(throwable.getMessage()))).neverComplete()).wiretap(true);
-        System.out.println("启动完成");
+                TcpServer.create().host(ip).port(port)
+                        .doOnConnection(connection -> log.info(connection.toString()))
+                        .handle((inbound, outbound) -> TcpClient.create()
+                                .host(proxyHost)
+                                .port(proxyPort)
+                                .doOnConnected(conn -> log.info(conn.toString()))
+                                .connect().flatMap(targetConnection -> {
+                                    //双向数据转发
+                                    Mono<Void> clientToTarget = targetConnection.outbound()
+                                            .send(inbound.receive().retain().doOnNext(LogHandler::logRequest))
+                                            .then();
+
+                                    Mono<Void> targetToClient = outbound
+                                            .send(targetConnection.inbound().receive().retain().doOnNext(LogHandler::logResponse))
+                                            .then();
+
+                                    // 同时执行双向转发，任一方向结束时整体结束
+                                    return Mono.when(clientToTarget, targetToClient)
+                                            .doFinally(signalType -> targetConnection.dispose());
+                                })).wiretap(true);
+        log.info("启动完成");
         server.bindNow().onDispose().log().block();
     }
 }

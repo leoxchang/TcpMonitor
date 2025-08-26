@@ -26,7 +26,14 @@ import java.util.logging.Level;
 @Log
 public class LogHandler {
 
-    public static Charset charset = StandardCharsets.UTF_8;
+    private LogHandler() {
+    }
+
+    private static Charset charset = StandardCharsets.UTF_8;
+
+    public static void setCharset(Charset charset) {
+        LogHandler.charset = charset;
+    }
 
     public static void logRequest(HttpServerRequest request, ByteBuf byteBuf) {
         StringBuilder builder = new StringBuilder();

@@ -1,5 +1,7 @@
 package com.leo.monitor.config;
 
+import lombok.Getter;
+
 /**
  * @author qiezi999
  */
@@ -8,12 +10,19 @@ public enum Mode {
     /**
      * tcp
      */
-    tcp(),
+    TCP("tcp"),
     /**
      * http
      */
-    http();
+    HTTP("http"),
+    /**
+     * udp
+     */
+    UDP("udp");
+    @Getter
+    private final String value;
 
-    Mode() {
+    Mode(String value) {
+        this.value = value;
     }
 }

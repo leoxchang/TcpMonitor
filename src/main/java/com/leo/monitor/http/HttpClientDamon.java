@@ -5,6 +5,7 @@ import com.leo.monitor.handler.LogHandler;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.handler.codec.http.HttpHeaderNames;
+import lombok.extern.java.Log;
 import reactor.netty.http.client.HttpClient;
 import reactor.netty.http.server.HttpServerRequest;
 
@@ -16,6 +17,7 @@ import java.util.Objects;
  * @author zhangxinlei
  * @date 2022-11-07
  */
+@Log
 public class HttpClientDamon {
 
     private final HttpClient httpClient;
@@ -23,7 +25,7 @@ public class HttpClientDamon {
     private String proxy;
 
     public HttpClientDamon(String proxyHost, Integer proxyPort) {
-        this.httpClient = HttpClient.create().doOnConnected(connection -> System.out.println(connection.channel()));
+        this.httpClient = HttpClient.create().doOnConnected(connection -> log.info(connection.channel().toString()));
         proxy = proxyHost;
         if (!Objects.isNull(proxyPort)) {
             proxy += ":" + proxyPort;

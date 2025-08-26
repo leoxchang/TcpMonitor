@@ -12,7 +12,6 @@ import reactor.netty.http.client.HttpClient;
 import reactor.netty.http.server.HttpServer;
 
 import java.util.Objects;
-import java.util.logging.Level;
 
 /**
  * http server
@@ -34,7 +33,7 @@ public class HttpServerDamon implements Damon {
         var server = HttpServer.create()
                 .host(ip)
                 .port(port)
-                .doOnConnection(connection -> System.out.println(connection.channel()))
+                .doOnConnection(connection -> log.info(connection.channel().toString()))
                 .handle((request, response) -> {
                     HttpClient.ResponseReceiver<?> receiver =
                             httpClientDamon.send(HttpMethod.valueOf(request.method().name()), request.uri(), request);
@@ -55,7 +54,7 @@ public class HttpServerDamon implements Damon {
                     }
                     return response.sendString(Mono.just("error"));
                 });
-        log.log(Level.INFO, "启动完成,监听端口:" + port);
+        log.info("启动完成,监听端口:" + port);
         server.bindNow()
                 .onDispose()
                 .block();

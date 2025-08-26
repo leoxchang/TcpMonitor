@@ -21,6 +21,7 @@ import java.util.logging.Level;
  */
 @Log
 public class Monitor {
+    private static final String OPTIONS = "options";
     public static void main(String[] args) {
         Monitor monitor = new Monitor();
         monitor.start(args);
@@ -37,17 +38,17 @@ public class Monitor {
             CommandLine cmd = parser.parse(options, args);
             if (!cmd.hasOption(Constants.MODE)) {
                 HelpFormatter hf = new HelpFormatter();
-                hf.printHelp("options", options);
+                hf.printHelp(OPTIONS, options);
                 return;
             }
             if (!cmd.hasOption(Constants.PROXY_HOST)) {
                 HelpFormatter hf = new HelpFormatter();
-                hf.printHelp("options", options);
+                hf.printHelp(OPTIONS, options);
                 return;
             }
             if (!cmd.hasOption(Constants.PROXY_PORT)) {
                 HelpFormatter hf = new HelpFormatter();
-                hf.printHelp("options", options);
+                hf.printHelp(OPTIONS, options);
                 return;
             }
             proxyHost = cmd.getOptionValue(Constants.PROXY_HOST);
@@ -59,19 +60,19 @@ public class Monitor {
                 localPort = Integer.parseInt(cmd.getOptionValue(Constants.LISTENER_PORT));
             }
             if (cmd.hasOption(Constants.CODE)) {
-                LogHandler.charset = Charset.forName(cmd.getOptionValue(Constants.CODE));
+                LogHandler.setCharset(Charset.forName(cmd.getOptionValue(Constants.CODE)));
             }
 
-            if (Objects.equals(cmd.getOptionValue(Constants.MODE), Mode.http.name())) {
+            if (Objects.equals(cmd.getOptionValue(Constants.MODE), Mode.HTTP.getValue())) {
                 HttpClientDamon clientDamon = new HttpClientDamon(proxyHost, proxyPort);
                 HttpServerDamon httpServerDamon = new HttpServerDamon(clientDamon);
                 httpServerDamon.start(localHost, localPort);
-            } else if (Objects.equals(cmd.getOptionValue(Constants.MODE), Mode.tcp.name())) {
+            } else if (Objects.equals(cmd.getOptionValue(Constants.MODE), Mode.TCP.getValue())) {
                 TcpServerDamon tcpServerDamon = new TcpServerDamon(proxyHost, proxyPort);
                 tcpServerDamon.start(localHost, localPort);
             } else {
                 HelpFormatter hf = new HelpFormatter();
-                hf.printHelp("options", options);
+                hf.printHelp(OPTIONS, options);
             }
         } catch (ParseException e) {
             log.log(Level.INFO, "参数解析错误", e);
