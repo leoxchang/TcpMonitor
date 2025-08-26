@@ -18,13 +18,13 @@ import java.util.Objects;
  * @date 2022-11-07
  */
 @Log
-public class HttpClientDamon {
+public class HttpClientDaemon {
 
     private final HttpClient httpClient;
 
     private String proxy;
 
-    public HttpClientDamon(String proxyHost, Integer proxyPort) {
+    public HttpClientDaemon(String proxyHost, Integer proxyPort) {
         this.httpClient = HttpClient.create().doOnConnected(connection -> log.info(connection.channel().toString()));
         proxy = proxyHost;
         if (!Objects.isNull(proxyPort)) {

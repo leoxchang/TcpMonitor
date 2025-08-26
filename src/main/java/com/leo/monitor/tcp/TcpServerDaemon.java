@@ -1,6 +1,6 @@
 package com.leo.monitor.tcp;
 
-import com.leo.monitor.Damon;
+import com.leo.monitor.Daemon;
 import com.leo.monitor.handler.LogHandler;
 import lombok.extern.java.Log;
 import reactor.core.publisher.Mono;
@@ -14,13 +14,13 @@ import reactor.netty.tcp.TcpServer;
  * @date 2022-11-04
  */
 @Log
-public class TcpServerDamon implements Damon {
+public class TcpServerDaemon implements Daemon {
 
     private final String proxyHost;
 
     private final Integer proxyPort;
 
-    public TcpServerDamon(String proxyHost, Integer proxyPort) {
+    public TcpServerDaemon(String proxyHost, Integer proxyPort) {
         this.proxyHost = proxyHost;
         this.proxyPort = proxyPort;
     }

@@ -3,9 +3,9 @@ package com.leo.monitor;
 import com.leo.monitor.config.Constants;
 import com.leo.monitor.config.Mode;
 import com.leo.monitor.handler.LogHandler;
-import com.leo.monitor.http.HttpClientDamon;
-import com.leo.monitor.http.HttpServerDamon;
-import com.leo.monitor.tcp.TcpServerDamon;
+import com.leo.monitor.http.HttpClientDaemon;
+import com.leo.monitor.http.HttpServerDaemon;
+import com.leo.monitor.tcp.TcpServerDaemon;
 import lombok.extern.java.Log;
 import org.apache.commons.cli.*;
 
@@ -64,11 +64,11 @@ public class Monitor {
             }
 
             if (Objects.equals(cmd.getOptionValue(Constants.MODE), Mode.HTTP.getValue())) {
-                HttpClientDamon clientDamon = new HttpClientDamon(proxyHost, proxyPort);
-                HttpServerDamon httpServerDamon = new HttpServerDamon(clientDamon);
+                HttpClientDaemon clientDamon = new HttpClientDaemon(proxyHost, proxyPort);
+                Daemon httpServerDamon = new HttpServerDaemon(clientDamon);
                 httpServerDamon.start(localHost, localPort);
             } else if (Objects.equals(cmd.getOptionValue(Constants.MODE), Mode.TCP.getValue())) {
-                TcpServerDamon tcpServerDamon = new TcpServerDamon(proxyHost, proxyPort);
+                Daemon tcpServerDamon = new TcpServerDaemon(proxyHost, proxyPort);
                 tcpServerDamon.start(localHost, localPort);
             } else {
                 HelpFormatter hf = new HelpFormatter();

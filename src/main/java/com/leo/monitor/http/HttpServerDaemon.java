@@ -1,6 +1,6 @@
 package com.leo.monitor.http;
 
-import com.leo.monitor.Damon;
+import com.leo.monitor.Daemon;
 import com.leo.monitor.config.HttpMethod;
 import com.leo.monitor.handler.LogHandler;
 import io.netty.buffer.ByteBuf;
@@ -20,11 +20,11 @@ import java.util.Objects;
  * @date 2022-11-04
  */
 @Log
-public class HttpServerDamon implements Damon {
+public class HttpServerDaemon implements Daemon {
 
-    private final HttpClientDamon httpClientDamon;
+    private final HttpClientDaemon httpClientDamon;
 
-    public HttpServerDamon(HttpClientDamon httpClientDamon) {
+    public HttpServerDaemon(HttpClientDaemon httpClientDamon) {
         this.httpClientDamon = httpClientDamon;
     }
 
