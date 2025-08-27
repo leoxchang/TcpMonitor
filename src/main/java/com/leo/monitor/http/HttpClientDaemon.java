@@ -3,7 +3,6 @@ package com.leo.monitor.http;
 import com.leo.monitor.config.HttpMethod;
 import com.leo.monitor.handler.LogHandler;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import lombok.extern.java.Log;
 import reactor.netty.http.client.HttpClient;
@@ -59,13 +58,8 @@ public class HttpClientDaemon {
         }
         if (!Objects.isNull(sender)) {
             return sender.uri(proxy + url).send(request.receive().retain().buffer().map(byteBufList -> {
-                int length = request.requestHeaders().getInt(HttpHeaderNames.CONTENT_LENGTH);
-                ByteBuf byteBuf = new PooledByteBufAllocator().buffer(length);
-                for (ByteBuf value : byteBufList) {
-                    byte[] buf = new byte[value.capacity()];
-                    value.readBytes(buf);
-                    byteBuf.writeBytes(buf);
-                }
+                Integer length = request.requestHeaders().getInt(HttpHeaderNames.CONTENT_LENGTH);
+                ByteBuf byteBuf = HttpServerDaemon.getByteBuf(byteBufList, length);
                 LogHandler.logRequest(request, byteBuf);
                 return byteBuf;
             }));

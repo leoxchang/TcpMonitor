@@ -4,13 +4,14 @@ import com.leo.monitor.Daemon;
 import com.leo.monitor.config.HttpMethod;
 import com.leo.monitor.handler.LogHandler;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.PooledByteBufAllocator;
+import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import lombok.extern.java.Log;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
 import reactor.netty.http.server.HttpServer;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -40,13 +41,8 @@ public class HttpServerDaemon implements Daemon {
                     if (!Objects.isNull(receiver)) {
                         return receiver.response((httpClientResponse, byteBufFlux) -> response.status(httpClientResponse.status()).headers(httpClientResponse.responseHeaders()).send(
                                 byteBufFlux.retain().buffer().map(byteBufList -> {
-                                    int length = response.responseHeaders().getInt(HttpHeaderNames.CONTENT_LENGTH);
-                                    ByteBuf byteBuf = new PooledByteBufAllocator().buffer(length);
-                                    for (ByteBuf value : byteBufList) {
-                                        byte[] buf = new byte[value.capacity()];
-                                        value.readBytes(buf);
-                                        byteBuf.writeBytes(buf);
-                                    }
+                                    Integer length = response.responseHeaders().getInt(HttpHeaderNames.CONTENT_LENGTH);
+                                    ByteBuf byteBuf = getByteBuf(byteBufList, length);
                                     LogHandler.logResponse(httpClientResponse, byteBuf);
                                     return byteBuf;
                                 })
@@ -58,5 +54,20 @@ public class HttpServerDaemon implements Daemon {
         server.bindNow()
                 .onDispose()
                 .block();
+    }
+
+    static ByteBuf getByteBuf(List<ByteBuf> byteBufList, Integer length) {
+        ByteBuf byteBuf;
+        if (Objects.nonNull(length)) {
+            byteBuf = Unpooled.buffer(length);
+        } else {
+            byteBuf = Unpooled.buffer();
+        }
+        for (ByteBuf value : byteBufList) {
+            byte[] buf = new byte[value.capacity()];
+            value.readBytes(buf);
+            byteBuf.writeBytes(buf);
+        }
+        return byteBuf;
     }
 }
