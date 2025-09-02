@@ -83,10 +83,14 @@ public class LogHandler {
             jsonBuilder.append("\"").append(entry.getKey()).append("\":").append("\"").append(entry.getValue().replace("\"", "\\\"")).append(
                     "\",");
         }
-        jsonBuilder.append("},\"body\":");
-        jsonBuilder.append(byteBuf.toString(Charset.defaultCharset())).append("}");
-        log.log(Level.INFO,
-                builder.append(JSONObject.parseObject(jsonBuilder.toString()).toJSONString(JSONWriter.Feature.PrettyFormat)).toString());
+        jsonBuilder.append("},\"body\":\"");
+        jsonBuilder.append(byteBuf.toString(Charset.defaultCharset())).append("\"}");
+        try {
+            log.log(Level.INFO,
+                    builder.append(JSONObject.parseObject(jsonBuilder.toString()).toJSONString(JSONWriter.Feature.PrettyFormat)).toString());
+        }catch (Exception e){
+            log.log(Level.INFO, builder.append(jsonBuilder).toString());
+        }
     }
 
     public static void logResponse(ByteBuf byteBuf) {

@@ -2,8 +2,6 @@ package com.leo.monitor.http;
 
 import com.leo.monitor.config.HttpMethod;
 import com.leo.monitor.handler.LogHandler;
-import io.netty.buffer.ByteBuf;
-import io.netty.handler.codec.http.HttpHeaderNames;
 import lombok.extern.java.Log;
 import reactor.netty.http.client.HttpClient;
 import reactor.netty.http.server.HttpServerRequest;
@@ -24,7 +22,8 @@ public class HttpClientDaemon {
     private String proxy;
 
     public HttpClientDaemon(String proxyHost, Integer proxyPort) {
-        this.httpClient = HttpClient.create().doOnConnected(connection -> log.info(connection.channel().toString()));
+        this.httpClient = HttpClient.create()
+                .doOnConnected(connection -> log.info(connection.channel().toString()));
         proxy = proxyHost;
         if (!Objects.isNull(proxyPort)) {
             proxy += ":" + proxyPort;
@@ -57,9 +56,7 @@ public class HttpClientDaemon {
                 break;
         }
         if (!Objects.isNull(sender)) {
-            return sender.uri(proxy + url).send(request.receive().retain().buffer().map(byteBufList -> {
-                Integer length = request.requestHeaders().getInt(HttpHeaderNames.CONTENT_LENGTH);
-                ByteBuf byteBuf = HttpServerDaemon.getByteBuf(byteBufList, length);
+            return sender.uri(proxy + url).send(request.receive().retain().map(byteBuf -> {
                 LogHandler.logRequest(request, byteBuf);
                 return byteBuf;
             }));

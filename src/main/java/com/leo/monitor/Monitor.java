@@ -84,9 +84,9 @@ public class Monitor {
         options.addOption("m", Constants.MODE, true, "proxy mode tcp or http");
         options.addOption("h", Constants.PROXY_HOST, true, "set proxy host");
         options.addOption("p", Constants.PROXY_PORT, true, "set proxy port");
-        options.addOption("lh", Constants.LISTENER_HOST, false, "set local port,default 127.0.0.1");
-        options.addOption("lp", Constants.LISTENER_PORT, false, "set local port,default 9999");
-        options.addOption("c", Constants.CODE, false, "log decode charset,default utf-8");
+        options.addOption("lh", Constants.LISTENER_HOST, true, "set local port,default 127.0.0.1");
+        options.addOption("lp", Constants.LISTENER_PORT, true, "set local port,default 9999");
+        options.addOption("c", Constants.CODE, true, "log decode charset,default utf-8");
         return options;
     }
 }
